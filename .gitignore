@@ -1,0 +1,59 @@
+# Vim swap files.
+*.swp
+
+# IntelliJ IDEA project files.
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+
+# Eclipse project files.
+.settings/
+.project
+.classpath
+.metadata/
+bin/
+
+# Netbeans config.
+nb-configuration.xml
+
+# Jystem generated folders and files.
+log/
+.testdir.tmp
+jsystem.properties*
+*.log*
+*.lck
+runnerState.properties
+
+# Maven build directory.
+target/
+# Maven release plugin
+*.releaseBackup
+release.properties
+
+# Other build directory.
+classes/
+
+#Others
+*.*~
+*~
+*.orig
+# wrap module agent build file
+*.agent
+*.DS_Store
+
+#TestNG
+test-output/
+
+#Python binary
+*.pyc
+
+#Reports
+jcat-report/
+
+#Maven version backups
+*.versionsBackup
+
+# Ignore any temporary files required by web drivers
+**/.webdriver-temp-storage/
