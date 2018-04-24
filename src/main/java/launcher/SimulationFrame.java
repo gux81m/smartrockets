@@ -167,7 +167,8 @@ public abstract class SimulationFrame extends JFrame {
         // set the last time
         this.last = time;
         // convert from nanoseconds to seconds
-        double elapsedTime = (double)diff / NANO_TO_BASE;
+//        double elapsedTime = (double) diff / NANO_TO_BASE;
+        double elapsedTime = ((double) diff / NANO_TO_BASE * 1.5);
 
         // render anything about the simulation (will render the RocketWorld objects)
         this.render(g, elapsedTime);
@@ -259,6 +260,11 @@ public abstract class SimulationFrame extends JFrame {
     protected void update(Graphics2D g, double elapsedTime) {
         // update the world with the elapsed time
         this.world.update(elapsedTime);
+        try {
+            Thread.sleep(1000 / 90);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

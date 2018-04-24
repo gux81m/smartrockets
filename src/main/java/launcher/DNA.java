@@ -1,6 +1,5 @@
 package launcher;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,8 +18,9 @@ public class DNA {
     private void initDNA(int length) {
         for (int i = 0; i < length; i++) {
             thruster.add(THRUSTER.values()[new Random().nextInt(THRUSTER.values().length)]);
+//            thruster.add(THRUSTER.FORWARD);
             force.add(new Random().nextDouble());
-            time.add(new Random().nextDouble());
+            time.add(new Random().nextDouble()*2);
         }
     }
 
@@ -28,12 +28,24 @@ public class DNA {
         return thruster.get(i);
     }
 
+    public void setThruster(int index, THRUSTER thruster) {
+        this.thruster.add(index, thruster);
+    }
+
     public double getForce(int i) {
         return force.get(i);
     }
 
+    public void setForce(int index, double force) {
+        this.force.add(index, force);
+    }
+
     public double getTime(int i) {
         return time.get(i);
+    }
+
+    public void setTime(int index, double time) {
+        this.time.add(index, time);
     }
 
     public enum THRUSTER {

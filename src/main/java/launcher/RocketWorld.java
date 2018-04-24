@@ -1,5 +1,7 @@
 package launcher;
 
+import org.dyn4j.collision.CategoryFilter;
+import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
@@ -7,9 +9,11 @@ import java.util.ArrayList;
 
 import static launcher.SmartRocketsConstants.CANVAS_SIZE;
 import static launcher.SmartRocketsConstants.SCALE;
+import static launcher.SmartRocketsConstants.TARGET_RADIUS;
 
 public class RocketWorld {
     private ArrayList<SimulationBody> walls;
+    private SimulationBody target;
     private ArrayList<SimulationBody> obstacles;
 
     public RocketWorld() {
@@ -40,13 +44,22 @@ public class RocketWorld {
         bottom.translate(0, -(canvasRelativeHeight + 1)/2);
         bottom.setMass(MassType.INFINITE);
         walls.add(bottom);
-    }
 
-    public ArrayList<SimulationBody> getObstacles() {
-        return obstacles;
+        target = new SimulationBody();
+        target.addFixture(Geometry.createCircle(TARGET_RADIUS));
+        target.translate(TARGET_RADIUS / 2, (canvasRelativeHeight + 1)/2 - TARGET_RADIUS * 2);
+        target.setMass(MassType.INFINITE);
     }
 
     public ArrayList<SimulationBody> getWalls() {
         return walls;
+    }
+
+    public SimulationBody getTarget() {
+        return target;
+    }
+
+    public ArrayList<SimulationBody> getObstacles() {
+        return obstacles;
     }
 }

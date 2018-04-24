@@ -1,5 +1,6 @@
 package launcher;
 
+import org.dyn4j.collision.CategoryFilter;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.Vector2;
@@ -11,21 +12,45 @@ import static launcher.SmartRocketsConstants.*;
 
 public class Rocket {
     private SimulationBody rocket;
+    private Vector2 targetVector;
     private DNA dna;
     private int step;
+    private double elapsedTimeInStep;
+    private boolean directHit;
+    private boolean destroyed;
+    private double startDistance;
 
-    public Rocket() {
+    public Rocket(Vector2 targetVector) {
         rocket = new SimulationBody();
-        rocket.addFixture(Geometry.createRectangle(ROCKET_WIDTH/SCALE, ROCKET_HEIGHT/SCALE), 1, 0.2, 0.2);
+        this.targetVector = targetVector;
+        BodyFixture body = rocket.addFixture(Geometry.createRectangle(ROCKET_WIDTH/SCALE, ROCKET_HEIGHT/SCALE), 1, 0.2, 0.2);
+        body.setFilter(new CategoryFilter(1L, 2L));
         BodyFixture rocketHead = rocket.addFixture(Geometry.createEquilateralTriangle(ROCKET_HEIGHT/SCALE/3), 1, 0.2, 0.2);
+        rocketHead.setFilter(new CategoryFilter(1L, 2L));
         rocketHead.getShape().translate(0, ROCKET_HEIGHT/SCALE*0.6);
-        rocket.translate(0.0, 2.0);
+        rocket.translate(0.0, -CANVAS_SIZE.getHeight()/SCALE/2 + 2);
         rocket.setMass(MASS_TYPE);
         dna = new DNA(DNA_LENGTH);
+        directHit = false;
+        destroyed = false;
+        startDistance = getCenter().distance(targetVector);
     }
 
     public SimulationBody getRocket() {
         return rocket;
+    }
+
+    public void directHit() {
+        this.directHit = true;
+        rocket.setActive(false);
+    }
+
+    public DNA getDNA() {
+        return this.dna;
+    }
+
+    public void setDNA(DNA dna) {
+        this.dna = dna;
     }
 
     public void forwardThrust(double force, Graphics2D g) {
@@ -89,38 +114,54 @@ public class Rocket {
     public void makeNextMove(double elapsedTime, Graphics2D g) {
         if (step != DNA_LENGTH) {
             DNA.THRUSTER thruster = dna.getThruster(step);
-            System.out.println("thruster: " + thruster);
             double force = dna.getForce(step) * elapsedTime * 1000;
-            System.out.println("force: " + force);
-            double timeSpentInAction = 0;
-            double time = dna.getTime(step);
-            System.out.println("time: " + time);
-
-            while (timeSpentInAction < time) {
-                if (DNA.THRUSTER.FORWARD.equals(thruster)) {
-                    System.out.println("fel");
-                    this.forwardThrust(force, g);
-                }
-                if (DNA.THRUSTER.LEFT.equals(thruster)) {
-                    System.out.println("balra");
-                    this.leftThrustOn(0.1 * force, g);
-                }
-                if (DNA.THRUSTER.RIGHT.equals(thruster)) {
-                    System.out.println("jobbra");
-                    this.rightThrustOn(0.1 * force, g);
-                }
-                timeSpentInAction += elapsedTime;
-                System.out.println(timeSpentInAction);
+            if (DNA.THRUSTER.FORWARD.equals(thruster)) {
+                this.forwardThrust(force, g);
             }
-            step++;
-            System.out.println("step: " + step);
+            if (DNA.THRUSTER.LEFT.equals(thruster)) {
+                this.leftThrustOn(0.1 * force, g);
+            }
+            if (DNA.THRUSTER.RIGHT.equals(thruster)) {
+                this.rightThrustOn(0.1 * force, g);
+            }
+
+            double timeInStep = dna.getTime(step);
+            if (elapsedTimeInStep < timeInStep) {
+                elapsedTimeInStep += elapsedTime;
+            } else {
+                step++;
+            }
+        } else {
+            rocket.setActive(false);
+        }
+    }
+
+    public int calculateFitness() {
+        if (destroyed) {
+            return 1;
+        } else {
+            return (int) (2 - getDistance() / startDistance) * 100;
+        }
+    }
+
+    public double getDistance() {
+        if (directHit) {
+            return 0;
+        } else {
+            return getCenter().distance(targetVector);
         }
     }
 
     private Vector2 getRotation() {
         return new Vector2(this.rocket.getTransform().getRotation() + Math.PI * 0.5);
     }
+
     private Vector2 getCenter() {
         return this.rocket.getWorldCenter();
+    }
+
+    public void destroyed() {
+        destroyed = true;
+        rocket.setActive(false);
     }
 }
