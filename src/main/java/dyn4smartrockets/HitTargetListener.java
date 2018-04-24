@@ -1,4 +1,4 @@
-package launcher;
+package dyn4smartrockets;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;

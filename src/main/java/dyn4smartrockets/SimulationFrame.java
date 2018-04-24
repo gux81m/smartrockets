@@ -1,4 +1,4 @@
-package launcher;
+package dyn4smartrockets;
 
 import java.awt.Canvas;
 import java.awt.Color;

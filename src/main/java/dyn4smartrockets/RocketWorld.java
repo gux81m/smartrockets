@@ -1,20 +1,17 @@
-package launcher;
+package dyn4smartrockets;
 
-import org.dyn4j.collision.CategoryFilter;
-import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
 import java.util.ArrayList;
 
-import static launcher.SmartRocketsConstants.CANVAS_SIZE;
-import static launcher.SmartRocketsConstants.SCALE;
-import static launcher.SmartRocketsConstants.TARGET_RADIUS;
+import static dyn4smartrockets.SmartRocketsConstants.CANVAS_SIZE;
+import static dyn4smartrockets.SmartRocketsConstants.SCALE;
+import static dyn4smartrockets.SmartRocketsConstants.TARGET_RADIUS;
 
 public class RocketWorld {
     private ArrayList<SimulationBody> walls;
     private SimulationBody target;
-    private ArrayList<SimulationBody> obstacles;
 
     public RocketWorld() {
         walls = new ArrayList<>();
@@ -45,6 +42,12 @@ public class RocketWorld {
         bottom.setMass(MassType.INFINITE);
         walls.add(bottom);
 
+        SimulationBody obstacle = new SimulationBody();
+        obstacle.addFixture(Geometry.createRectangle(canvasRelativeWidth/3, 2));
+        obstacle.translate(0, 0);
+        obstacle.setMass(MassType.INFINITE);
+        walls.add(obstacle);
+
         target = new SimulationBody();
         target.addFixture(Geometry.createCircle(TARGET_RADIUS));
         target.translate(TARGET_RADIUS / 2, (canvasRelativeHeight + 1)/2 - TARGET_RADIUS * 2);
@@ -57,9 +60,5 @@ public class RocketWorld {
 
     public SimulationBody getTarget() {
         return target;
-    }
-
-    public ArrayList<SimulationBody> getObstacles() {
-        return obstacles;
     }
 }

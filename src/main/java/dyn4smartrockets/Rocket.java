@@ -1,4 +1,4 @@
-package launcher;
+package dyn4smartrockets;
 
 import org.dyn4j.collision.CategoryFilter;
 import org.dyn4j.dynamics.BodyFixture;
@@ -8,7 +8,7 @@ import org.dyn4j.geometry.Vector2;
 import java.awt.*;
 import java.awt.geom.Line2D;
 
-import static launcher.SmartRocketsConstants.*;
+import static dyn4smartrockets.SmartRocketsConstants.*;
 
 public class Rocket {
     private SimulationBody rocket;
@@ -30,7 +30,7 @@ public class Rocket {
         rocketHead.getShape().translate(0, ROCKET_HEIGHT/SCALE*0.6);
         rocket.translate(0.0, -CANVAS_SIZE.getHeight()/SCALE/2 + 2);
         rocket.setMass(MASS_TYPE);
-        dna = new DNA(DNA_LENGTH);
+        dna = new DNA();
         directHit = false;
         destroyed = false;
         startDistance = getCenter().distance(targetVector);
@@ -112,12 +112,13 @@ public class Rocket {
     }
 
     public void makeNextMove(double elapsedTime, Graphics2D g) {
-        if (step != DNA_LENGTH) {
+        if (step != DNA_LENGTH && !destroyed && !directHit) {
+            this.forwardThrust(elapsedTime * 500, g);
             DNA.THRUSTER thruster = dna.getThruster(step);
             double force = dna.getForce(step) * elapsedTime * 1000;
-            if (DNA.THRUSTER.FORWARD.equals(thruster)) {
-                this.forwardThrust(force, g);
-            }
+//            if (DNA.THRUSTER.FORWARD.equals(thruster)) {
+//                this.forwardThrust(force, g);
+//            }
             if (DNA.THRUSTER.LEFT.equals(thruster)) {
                 this.leftThrustOn(0.1 * force, g);
             }
@@ -137,10 +138,10 @@ public class Rocket {
     }
 
     public int calculateFitness() {
-        if (destroyed) {
-            return 1;
+        if (this.destroyed) {
+            return (int) ((1 - getDistance() / startDistance) * 5);
         } else {
-            return (int) (2 - getDistance() / startDistance) * 100;
+            return (int) ((1 - getDistance() / startDistance) * 10);
         }
     }
 
@@ -161,7 +162,7 @@ public class Rocket {
     }
 
     public void destroyed() {
-        destroyed = true;
+        this.destroyed = true;
         rocket.setActive(false);
     }
 }

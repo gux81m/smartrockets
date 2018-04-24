@@ -1,10 +1,10 @@
-package launcher;
+package dyn4smartrockets;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static launcher.SmartRocketsConstants.*;
+import static dyn4smartrockets.SmartRocketsConstants.*;
 
 public class SmartRockets extends SimulationFrame {
     private RocketWorld rocketWorld;
@@ -63,11 +63,14 @@ public class SmartRockets extends SimulationFrame {
 
     private void mutateOneRocket() {
         int index = new Random().nextInt(rockets.size());
+        DNA dna = new DNA();
+        dna.initDNA();
+        rockets.get(index).setDNA(dna);
+
         int dnaIndex = new Random().nextInt(DNA_LENGTH);
-        DNA dna = rockets.get(index).getDNA();
-        dna.setThruster(dnaIndex, DNA.THRUSTER.values()[new Random().nextInt(DNA.THRUSTER.values().length)]);
-        dna.setForce(dnaIndex, new Random().nextDouble());
-        dna.setTime(dnaIndex, new Random().nextDouble()*2);
+//        dna.setThruster(dnaIndex, DNA.THRUSTER.values()[new Random().nextInt(DNA.THRUSTER.values().length)]);
+//        dna.setForce(dnaIndex, new Random().nextDouble());
+//        dna.setTime(dnaIndex, new Random().nextDouble()*2);
     }
 
     private void createMatingPool() {
@@ -96,7 +99,7 @@ public class SmartRockets extends SimulationFrame {
     }
 
     private DNA crossover(DNA dnaA, DNA dnaB) {
-        DNA childDNA = new DNA(DNA_LENGTH);
+        DNA childDNA = new DNA();
         for (int index = 0; index < DNA_LENGTH; index++) {
             DNA.THRUSTER thruster = new Random().nextBoolean() ? dnaA.getThruster(index) : dnaB.getThruster(index);
             childDNA.setThruster(index, thruster);
