@@ -5,6 +5,6 @@ import javafx.scene.shape.Rectangle;
 
 public class Obstacle extends GameObject {
     Obstacle() {
-        super(new Rectangle(400, 50, Color.BLACK));
+        super(new Rectangle(300, 20, Color.BLACK));
     }
 }

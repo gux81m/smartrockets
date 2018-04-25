@@ -9,9 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import static javafxsmartrockets.SmartRocketsConstants.*;
@@ -21,7 +19,7 @@ public class World extends Application {
     private List<Rocket> rockets = new ArrayList<>();
     private ArrayList<DNA> matingPool = new ArrayList<>();
     private GameObject target;
-    private GameObject obstacle;
+    private GameObject obstacle1, obstacle2, obstacle3, obstacle4;
     private int step;
     private int divider;
     private int generation;
@@ -39,8 +37,14 @@ public class World extends Application {
         target = new Target();
         addGameObject(target, 490, 50);
 
-        obstacle = new Obstacle();
-        addGameObject(obstacle, 300, 475);
+        obstacle1 = new Obstacle();
+        obstacle2 = new Obstacle();
+        obstacle3 = new Obstacle();
+        obstacle4 = new Obstacle();
+        addGameObject(obstacle1, 350, 650);
+        addGameObject(obstacle2, 0, 450);
+        addGameObject(obstacle3, 700, 450);
+        addGameObject(obstacle4, 350, 250);
 
         initializeRockets();
 
@@ -75,7 +79,7 @@ public class World extends Application {
     }
 
     private void onUpdate() {
-        if (divider != 5) {
+        if (divider != 1) {
             divider++;
             rockets.forEach(Rocket::update);
         } else {
@@ -89,6 +93,7 @@ public class World extends Application {
                 initializeRockets();
                 createNewGeneration();
                 mutate();
+                System.out.println("generation: " + ++generation + "\n");
             } else {
                 step++;
             }
@@ -102,14 +107,17 @@ public class World extends Application {
                 rocket.setVelocity(new Point2D(0, 0));
             }
 
-            if (obstacle.isColliding(rocket)){
-                rocket.setDestroyed(true);
+            if (obstacle1.isColliding(rocket) ||
+                obstacle2.isColliding(rocket) ||
+                obstacle3.isColliding(rocket) ||
+                obstacle4.isColliding(rocket)){
+                rocket.setDestroyedByObstacle(true);
                 rocket.setAlive(false);
                 rocket.setVelocity(new Point2D(0, 0));
             }
 
             if (!rocket.isInWorld()) {
-                rocket.setDestroyed(true);
+                rocket.setDestroyedByWall(true);
                 rocket.setAlive(false);
                 rocket.setVelocity(new Point2D(0, 0));
             }
@@ -124,15 +132,16 @@ public class World extends Application {
             rocket.setDna(newDna);
         }
         System.out.println("rocket number: " + rockets.size());
-        System.out.println("generation: " + ++generation + "\n");
     }
 
     private void mutate() {
-        for (int i = 0; i < MUTATION_NUMBER; i++) {
+        int mutationNumber = (int) (MUTATION_RATE * NUMBER_OF_ROCKETS);
+        for (int i = 0; i < mutationNumber; i++) {
             int index = new Random().nextInt(rockets.size());
             DNA mutation = new DNA();
             rockets.get(index).setDna(mutation);
         }
+        System.out.println("mutated rockets: " + mutationNumber);
     }
 
     private void createMatingPool() {
@@ -157,22 +166,33 @@ public class World extends Application {
 
     public DNA crossover(DNA dnaA, DNA dnaB) {
         DNA childDNA = new DNA();
-        for (int index = 0; index < DNA_LENGTH; index++) {
-            DNA.STEPS step = dnaA.getFitness() > dnaB.getFitness() ? dnaA.getSteps(index) : dnaB.getSteps(index);
-            childDNA.setSteps(index, step);
-        }
+//        boolean isABetter = dnaA.getFitness() > dnaB.getFitness() ? true : false;
+//        double fitnessANormalized = dnaA.getFitness() / (dnaA.getFitness() + dnaB.getFitness());
+//        double fitnessBNormalized = dnaB.getFitness() / (dnaA.getFitness() + dnaB.getFitness());
+//        int index = (int) (isABetter ? DNA_LENGTH * fitnessANormalized : DNA_LENGTH * fitnessBNormalized);
+//        for (int i = 0; i < DNA_LENGTH; i++) {
+//            if (i < index) {
+//                childDNA.setSteps(i, isABetter ? dnaA.getSteps(i) : dnaB.getSteps(i));
+//            } else {
+//                childDNA.setSteps(i, isABetter ? dnaB.getSteps(i) : dnaA.getSteps(i));
+//            }
+//        }
+//        for (int index = 0; index < DNA_LENGTH; index++) {
+//            DNA.STEPS step = dnaA.getFitness() > dnaB.getFitness() ? dnaA.getSteps(index) : dnaB.getSteps(index);
+//            childDNA.setSteps(index, step);
+//        }
 //        for (int index = 0; index < DNA_LENGTH; index++) {
 //            DNA.STEPS step = new Random().nextBoolean() ? dnaA.getSteps(index) : dnaB.getSteps(index);
 //            childDNA.setSteps(index, step);
 //        }
-//        int index = new Random().nextInt(DNA_LENGTH);
-//        for (int i = 0; i < DNA_LENGTH; i++) {
-//            if (i < index) {
-//                childDNA.setSteps(i, dnaA.getSteps(i));
-//            } else {
-//                childDNA.setSteps(i, dnaB.getSteps(i));
-//            }
-//        }
+        int index = new Random().nextInt(DNA_LENGTH);
+        for (int i = 0; i < DNA_LENGTH; i++) {
+            if (i < index) {
+                childDNA.setSteps(i, dnaA.getSteps(i));
+            } else {
+                childDNA.setSteps(i, dnaB.getSteps(i));
+            }
+        }
         return childDNA;
     }
 }

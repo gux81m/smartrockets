@@ -3,15 +3,13 @@ package javafxsmartrockets;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import static javafxsmartrockets.SmartRocketsConstants.OPACITY;
-import static javafxsmartrockets.SmartRocketsConstants.ROCKET_HEIGHT;
-import static javafxsmartrockets.SmartRocketsConstants.ROCKET_WIDTH;
-import static javafxsmartrockets.SmartRocketsConstants.WORLD_HEIGHT;
+import static javafxsmartrockets.SmartRocketsConstants.*;
 
 public class Rocket extends GameObject {
     private DNA dna = new DNA();
     private GameObject target;
-    private boolean destroyed;
+    private boolean destroyedByObstacle;
+    private boolean destroyedByWall;
     private boolean hit;
 
     Rocket(GameObject target) {
@@ -38,10 +36,6 @@ public class Rocket extends GameObject {
         this.hit = hit;
     }
 
-    public boolean isDestroyed() {
-        return destroyed;
-    }
-
     public void setDna(DNA dna) {
         this.dna = dna;
     }
@@ -50,8 +44,12 @@ public class Rocket extends GameObject {
         return dna;
     }
 
-    public void setDestroyed(boolean destroyed) {
-        this.destroyed = destroyed;
+    public void setDestroyedByObstacle(boolean destroyedByObstacle) {
+        this.destroyedByObstacle = destroyedByObstacle;
+    }
+
+    public void setDestroyedByWall(boolean destroyedByWall) {
+        this.destroyedByWall = destroyedByWall;
     }
 
     public double calculateFitness() {
@@ -60,7 +58,13 @@ public class Rocket extends GameObject {
         if (isHit()) {
             return 1;
         } else {
-            return remappedValue;
+            if (destroyedByWall) {
+                return remappedValue * PENALTY_FOR_HITTING_WALL;
+            } else if (destroyedByObstacle) {
+                return remappedValue * PENALTY_FOR_HITTING_OBSTACLE;
+            } else {
+                return remappedValue;
+            }
         }
     }
 }
