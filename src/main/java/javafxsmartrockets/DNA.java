@@ -7,6 +7,7 @@ import static javafxsmartrockets.SmartRocketsConstants.DNA_LENGTH;
 
 public class DNA {
     private ArrayList<STEPS> steps;
+    private double fitness;
 
     public DNA() {
         steps = new ArrayList<>(DNA_LENGTH);
@@ -21,6 +22,18 @@ public class DNA {
 
     public STEPS getSteps(int index) {
         return steps.get(index);
+    }
+
+    public void setSteps(int index, STEPS step) {
+        steps.add(index, step);
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
+    }
+
+    public double getFitness() {
+        return fitness;
     }
 
     public static enum STEPS {

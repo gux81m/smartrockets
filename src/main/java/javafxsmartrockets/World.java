@@ -9,17 +9,22 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static javafxsmartrockets.SmartRocketsConstants.*;
 
 public class World extends Application {
     private Pane root;
     private List<Rocket> rockets = new ArrayList<>();
+    private ArrayList<DNA> matingPool = new ArrayList<>();
     private GameObject target;
     private GameObject obstacle;
     private int step;
     private int divider;
+    private int generation;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -56,7 +61,7 @@ public class World extends Application {
 
     private void initializeRockets() {
         for (int i = 0; i < NUMBER_OF_ROCKETS; i++) {
-            Rocket rocket = new Rocket();
+            Rocket rocket = new Rocket(target);
             rocket.setVelocity(START_VELOCITY);
             rockets.add(rocket);
         }
@@ -77,12 +82,13 @@ public class World extends Application {
             rockets.stream().filter(rocket -> rocket.isAlive()).forEach(rocket -> rocket.makeNextMove(step));
             if ((step == DNA_LENGTH - 1) || rockets.stream().filter(Rocket::isAlive).count() == 0) {
                 step = 0;
+                System.out.println("hits/rockets: " + rockets.stream().filter(rocket -> rocket.isHit()).count() + "/" + NUMBER_OF_ROCKETS);
+                createMatingPool();
                 rockets.forEach(rocket -> root.getChildren().removeAll(rocket.getView()));
                 rockets.clear();
                 initializeRockets();
-                createMatingPool();
-                mutate();
                 createNewGeneration();
+                mutate();
             } else {
                 step++;
             }
@@ -102,7 +108,7 @@ public class World extends Application {
                 rocket.setVelocity(new Point2D(0, 0));
             }
 
-            if (!checkGameObjectIsInWorld(rocket)) {
+            if (!rocket.isInWorld()) {
                 rocket.setDestroyed(true);
                 rocket.setAlive(false);
                 rocket.setVelocity(new Point2D(0, 0));
@@ -111,25 +117,62 @@ public class World extends Application {
     }
 
     private void createNewGeneration() {
-
+        for (Rocket rocket : rockets) {
+            DNA parentA = matingPool.get(new Random().nextInt(matingPool.size()));
+            DNA parentB = matingPool.get(new Random().nextInt(matingPool.size()));
+            DNA newDna = crossover(parentA, parentB);
+            rocket.setDna(newDna);
+        }
+        System.out.println("rocket number: " + rockets.size());
+        System.out.println("generation: " + ++generation + "\n");
     }
 
     private void mutate() {
-
+        for (int i = 0; i < MUTATION_NUMBER; i++) {
+            int index = new Random().nextInt(rockets.size());
+            DNA mutation = new DNA();
+            rockets.get(index).setDna(mutation);
+        }
     }
 
     private void createMatingPool() {
-
+        matingPool.clear();
+//        double maxFitness = 0;
+//        for (Rocket rocket : rockets) {
+//            double fitness = rocket.calculateFitness();
+//            if (maxFitness < fitness) {
+//                maxFitness = fitness;
+//            }
+//        }
+        for (Rocket rocket : rockets) {
+            int number = (int) (Math.pow(rocket.calculateFitness()*100, 2)/100);
+            for (int i = 0; i < number; i++) {
+                DNA dna = rocket.getDna();
+                dna.setFitness(rocket.calculateFitness());
+                matingPool.add(rocket.getDna());
+            }
+        }
+        System.out.println("mating pool size: " + matingPool.size());
     }
 
-
-    private boolean checkGameObjectIsInWorld(GameObject object) {
-        double objectX = object.getView().getTranslateX();
-        double objectY = object.getView().getTranslateY();
-        if (objectX > 0 && objectX < WORLD_WIDTH &&
-            objectY > 0 && objectY < WORLD_HEIGHT) {
-            return true;
+    public DNA crossover(DNA dnaA, DNA dnaB) {
+        DNA childDNA = new DNA();
+        for (int index = 0; index < DNA_LENGTH; index++) {
+            DNA.STEPS step = dnaA.getFitness() > dnaB.getFitness() ? dnaA.getSteps(index) : dnaB.getSteps(index);
+            childDNA.setSteps(index, step);
         }
-        return false;
+//        for (int index = 0; index < DNA_LENGTH; index++) {
+//            DNA.STEPS step = new Random().nextBoolean() ? dnaA.getSteps(index) : dnaB.getSteps(index);
+//            childDNA.setSteps(index, step);
+//        }
+//        int index = new Random().nextInt(DNA_LENGTH);
+//        for (int i = 0; i < DNA_LENGTH; i++) {
+//            if (i < index) {
+//                childDNA.setSteps(i, dnaA.getSteps(i));
+//            } else {
+//                childDNA.setSteps(i, dnaB.getSteps(i));
+//            }
+//        }
+        return childDNA;
     }
 }

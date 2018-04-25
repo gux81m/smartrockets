@@ -4,6 +4,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
 import static javafxsmartrockets.SmartRocketsConstants.TURN_SIZE;
+import static javafxsmartrockets.SmartRocketsConstants.WORLD_HEIGHT;
+import static javafxsmartrockets.SmartRocketsConstants.WORLD_WIDTH;
 
 public class GameObject {
     private Node view;
@@ -61,5 +63,21 @@ public class GameObject {
 
     public boolean isColliding(GameObject other) {
         return getView().getBoundsInParent().intersects(other.getView().getBoundsInParent());
+    }
+
+    public double getDistanceFromGameObject(GameObject object) {
+        Point2D rocketPosition = new Point2D(this.getView().getTranslateX(), this.getView().getTranslateY());
+        Point2D targetPosition = new Point2D(object.getView().getTranslateX(), object.getView().getTranslateY());
+        return targetPosition.distance(rocketPosition);
+    }
+
+    public boolean isInWorld() {
+        double objectX = this.getView().getTranslateX();
+        double objectY = this.getView().getTranslateY();
+        if (objectX > 0 && objectX < WORLD_WIDTH &&
+            objectY > 0 && objectY < WORLD_HEIGHT) {
+            return true;
+        }
+        return false;
     }
 }
