@@ -8,7 +8,6 @@ public class SmartRocketsConstants {
     public static final double WORLD_WIDTH = 1000;
     public static final double TARGET_RADIUS = 20;
     public static final int NUMBER_OF_ROCKETS = 100;
-    public static final double MUTATION_RATE = 0.05;
 
     // Rocket constants
     public static final double ROCKET_WIDTH = 5;
@@ -21,4 +20,6 @@ public class SmartRocketsConstants {
     public static final Integer DNA_LENGTH = 200;
     public static final double PENALTY_FOR_HITTING_OBSTACLE = 0.8;
     public static final double PENALTY_FOR_HITTING_WALL = 0.9;
+    public static final double MUTATION_RATE = 0.05;
+    public static final double MUTATION_STREGTH = 0.1;
 }

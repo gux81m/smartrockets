@@ -92,7 +92,7 @@ public class World extends Application {
                 rockets.clear();
                 initializeRockets();
                 createNewGeneration();
-                mutate();
+                mutatePopulation();
                 System.out.println("generation: " + ++generation + "\n");
             } else {
                 step++;
@@ -134,25 +134,29 @@ public class World extends Application {
         System.out.println("rocket number: " + rockets.size());
     }
 
-    private void mutate() {
+    private void mutatePopulation() {
         int mutationNumber = (int) (MUTATION_RATE * NUMBER_OF_ROCKETS);
         for (int i = 0; i < mutationNumber; i++) {
             int index = new Random().nextInt(rockets.size());
-            DNA mutation = new DNA();
+//            DNA mutation = new DNA();
+            DNA mutation = mutateOneDNA(rockets.get(index).getDna());
             rockets.get(index).setDna(mutation);
         }
+        System.out.println("mutation strength: " + MUTATION_STREGTH*100 + "%");
         System.out.println("mutated rockets: " + mutationNumber);
+    }
+
+    private DNA mutateOneDNA(DNA dna) {
+        int mutationNumber = (int) (MUTATION_STREGTH * DNA_LENGTH);
+        for (int i = 0; i < mutationNumber; i++) {
+            int index = new Random().nextInt(DNA_LENGTH);
+            dna.setSteps(index, DNA.STEPS.values()[new Random().nextInt(DNA.STEPS.values().length)]);
+        }
+        return dna;
     }
 
     private void createMatingPool() {
         matingPool.clear();
-//        double maxFitness = 0;
-//        for (Rocket rocket : rockets) {
-//            double fitness = rocket.calculateFitness();
-//            if (maxFitness < fitness) {
-//                maxFitness = fitness;
-//            }
-//        }
         for (Rocket rocket : rockets) {
             int number = (int) (Math.pow(rocket.calculateFitness()*100, 2)/100);
             for (int i = 0; i < number; i++) {
@@ -177,10 +181,12 @@ public class World extends Application {
 //                childDNA.setSteps(i, isABetter ? dnaB.getSteps(i) : dnaA.getSteps(i));
 //            }
 //        }
+//
 //        for (int index = 0; index < DNA_LENGTH; index++) {
 //            DNA.STEPS step = dnaA.getFitness() > dnaB.getFitness() ? dnaA.getSteps(index) : dnaB.getSteps(index);
 //            childDNA.setSteps(index, step);
 //        }
+//
 //        for (int index = 0; index < DNA_LENGTH; index++) {
 //            DNA.STEPS step = new Random().nextBoolean() ? dnaA.getSteps(index) : dnaB.getSteps(index);
 //            childDNA.setSteps(index, step);
